@@ -2,11 +2,29 @@ package Pod::Cpandoc;
 use strict;
 use warnings;
 use base 'Pod::Perldoc';
-use Pod::Cpandoc::Scraper;
+use HTTP::Tiny;
+use File::Temp 'tempfile';
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
-use constant scraper => 'Pod::Cpandoc::Scraper';
+sub scrape_documentation_for {
+    my $self   = shift;
+    my $module = shift;
+
+    my $ua = HTTP::Tiny->new;
+    my $response = $ua->get(
+        "http://api.metacpan.org/pod/$module",
+        { headers => { 'Content-Type' => 'text/x-pod' } },
+    );
+    return unless $response->{success};
+
+    $module =~ s/::/-/g;
+    my ($fh, $fn) = tempfile("${module}-XXXX", UNLINK => 1);
+    print { $fh } $response->{content};
+    close $fh;
+
+    return $fn;
+}
 
 sub grand_search_init {
     my $self = shift;
@@ -16,7 +34,7 @@ sub grand_search_init {
         my $pages = shift;
 
         for my $module (@$pages) {
-            push @found, $self->scraper->get_documentation_for($module);
+            push @found, $self->scrape_documentation_for($module);
         }
     }
 
@@ -48,7 +66,7 @@ Pod::Cpandoc - a perldoc that works for modules you don't have
         -- passes everything through to regular perldoc
 
     cpandoc -tT Acme::BadExample | grep -i acme
-        -- options are respected even if you scrape the module's docs
+        -- options are respected even if the module was scraped
 
     vim `cpandoc -l Web::Scraper`
         -- getting the idea yet?
@@ -56,14 +74,19 @@ Pod::Cpandoc - a perldoc that works for modules you don't have
 =head1 SNEAKY INSTALL
 
     cpanm Pod::Cpandoc
-    alias perldoc=cpandoc
 
-This should work fine since cpandoc respects all perldoc commands.
-It's a subclass that just falls back to scraping L<http://search.cpan.org>.
+    then: alias perldoc=cpandoc
+    or:   function perldoc () { cpandoc "$@" }
+
+    Now `perldoc Acme::BadExample` works!
+
+This should work fine since C<cpandoc> passes all options through
+to C<perldoc>. This module is merely a subclass that just falls
+back to scraping a CPAN index.
 
 =head1 SEE ALSO
 
-The sneaky install was inspired by L<https://github.com/defunkt/hub>
+The sneaky install was inspired by L<https://github.com/defunkt/hub>.
 
 =head1 AUTHOR
 
