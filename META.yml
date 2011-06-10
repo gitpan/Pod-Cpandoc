@@ -1,0 +1,24 @@
+---
+abstract: "a perldoc that works for modules you don't have"
+author:
+  - 'Shawn M Moore C<sartak@gmail.com>'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 1.01'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Pod-Cpandoc
+no_index:
+  directory:
+    - inc
+requires:
+  Pod::Perldoc: 0
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://github.com/sartak/pod-cpandoc
+version: 0.01
