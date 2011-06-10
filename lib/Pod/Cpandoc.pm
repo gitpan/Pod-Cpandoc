@@ -1,15 +1,18 @@
 package Pod::Cpandoc;
+use 5.8.1;
 use strict;
 use warnings;
 use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub scrape_documentation_for {
     my $self   = shift;
     my $module = shift;
+
+    $self->aside("Going to query api.metacpan.org for $module\n");
 
     my $ua = HTTP::Tiny->new;
     my $response = $ua->get(
@@ -55,7 +58,7 @@ __END__
 
 =head1 NAME
 
-Pod::Cpandoc - a perldoc that works for modules you don't have
+Pod::Cpandoc - perldoc that works for modules you don't have installed
 
 =head1 SYNOPSIS
 
@@ -80,9 +83,10 @@ Pod::Cpandoc - a perldoc that works for modules you don't have
 
     Now `perldoc Acme::BadExample` works!
 
-This should work fine since C<cpandoc> passes all options through
-to C<perldoc>. This module is merely a subclass that just falls
-back to scraping a CPAN index.
+C<perldoc> should continue to work for everything that you're used
+to, since C<cpandoc> passes all options through to it. C<cpandoc>
+is merely a subclass that falls back to scraping a CPAN index when
+it fails to find your queried file in C<@INC>.
 
 =head1 SEE ALSO
 
