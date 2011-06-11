@@ -17,9 +17,9 @@ no_index:
   directory:
     - inc
 requires:
-  File::Temp: 0
+  HTTP::Tiny: 0
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/sartak/pod-cpandoc
-version: 0.03
+version: 0.04
