@@ -22,4 +22,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/sartak/pod-cpandoc
-version: 0.04
+version: 0.05
