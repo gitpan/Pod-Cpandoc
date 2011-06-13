@@ -6,7 +6,14 @@ use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
+
+sub live_cpan_url {
+    my $self   = shift;
+    my $module = shift;
+
+    return "http://api.metacpan.org/pod/$module";
+}
 
 sub unlink_tempfiles {
     my $self = shift;
@@ -17,14 +24,16 @@ sub scrape_documentation_for {
     my $self   = shift;
     my $module = shift;
 
-    $self->aside("Going to query api.metacpan.org for $module\n");
+    my $url = $self->live_cpan_url($module);
+
+    $self->aside("Going to query $url\n");
 
     my $ua = HTTP::Tiny->new(
         agent => "cpandoc/$VERSION",
     );
 
     my $response = $ua->get(
-        "http://api.metacpan.org/pod/$module",
+        $url,
         { headers => { 'Content-Type' => 'text/x-pod' } },
     );
     return unless $response->{success};
@@ -41,20 +50,23 @@ sub scrape_documentation_for {
     return $fn;
 }
 
+our $QUERY_CPAN;
 sub grand_search_init {
     my $self = shift;
-    my @found = $self->SUPER::grand_search_init(@_);
 
-    if (@found == 0) {
-        my $pages = shift;
+    local $QUERY_CPAN = 1;
+    return $self->SUPER::grand_search_init(@_);
+}
 
-        for my $module (@$pages) {
-            my @files = $self->scrape_documentation_for($module);
-            if (@files == 0) {
-                $self->real_report_no_matches($module);
-            }
-            push @found, @files;
-        }
+sub searchfor {
+    my $self = shift;
+    my ($recurse,$s,@dirs) = @_;
+
+    my @found = $self->SUPER::searchfor(@_);
+
+    if (@found == 0 && $QUERY_CPAN) {
+        $QUERY_CPAN = 0;
+        return $self->scrape_documentation_for($s);
     }
 
     return @found;
@@ -67,21 +79,6 @@ sub opt_V {
 
     return $self->SUPER::opt_V(@_);
 }
-
-# these next two functions attempt to cover Pod-Perldoc versions
-# with and without my report_no_matches patch
-sub real_report_no_matches {
-    my $self = shift;
-
-    # if SUPER::can('report_no_matches') fails, then we have already reported
-    # no matches before even trying to scrape CPAN
-    if ($self->SUPER::can('report_no_matches')) {
-        $self->SUPER::report_no_matches(@_);
-    }
-}
-
-# don't report_no_matches until we've tried scraping CPAN
-sub report_no_matches { }
 
 1;
 
