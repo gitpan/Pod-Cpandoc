@@ -6,7 +6,7 @@ use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub live_cpan_url {
     my $self   = shift;
@@ -37,11 +37,19 @@ sub scrape_documentation_for {
     );
 
     my $response = $ua->get($url);
-    return unless $response->{success};
+
+    if ($response->{success}) {
+        $self->aside("Successfully received " . length($response->{content}) . " bytes\n");
+    }
+    else {
+        $self->aside("Got a $response->{status} error from the server\n");
+        return;
+    }
 
     $module =~ s/::/-/g;
     my ($fh, $fn) = tempfile(
         "${module}-XXXX",
+        SUFFIX => ".pm",
         UNLINK => $self->unlink_tempfiles,
         TMPDIR => 1,
     );
