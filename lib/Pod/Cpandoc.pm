@@ -6,13 +6,13 @@ use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub live_cpan_url {
     my $self   = shift;
     my $module = shift;
 
-    return "http://api.metacpan.org/pod/$module";
+    return "http://api.metacpan.org/source/$module";
 }
 
 sub unlink_tempfiles {
@@ -36,10 +36,7 @@ sub scrape_documentation_for {
         agent => "cpandoc/$VERSION",
     );
 
-    my $response = $ua->get(
-        $url,
-        { headers => { 'Content-Type' => 'text/x-pod' } },
-    );
+    my $response = $ua->get($url);
     return unless $response->{success};
 
     $module =~ s/::/-/g;
@@ -103,7 +100,7 @@ Pod::Cpandoc - perldoc that works for modules you don't have installed
     cpandoc -v '$?'
         -- passes everything through to regular perldoc
 
-    cpandoc -tT Acme::BadExample | grep -i acme
+    cpandoc -m Acme::BadExample | grep system
         -- options are respected even if the module was scraped
 
     vim `cpandoc -l Web::Scraper`
@@ -150,7 +147,7 @@ it fails to find your queried file in C<@INC>.
 
 The sneaky install was inspired by L<https://github.com/defunkt/hub>.
 
-http://tech.bayashi.jp/archives/entry/perl-module/2011/003305.html
+L<http://tech.bayashi.jp/archives/entry/perl-module/2011/003305.html>
 
 =head1 AUTHOR
 
