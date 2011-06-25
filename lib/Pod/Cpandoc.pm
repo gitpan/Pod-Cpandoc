@@ -6,7 +6,7 @@ use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 sub live_cpan_url {
     my $self   = shift;
@@ -20,7 +20,7 @@ sub unlink_tempfiles {
     return $self->opt_l ? 0 : 1;
 }
 
-sub scrape_documentation_for {
+sub query_live_cpan_for {
     my $self   = shift;
     my $module = shift;
 
@@ -46,6 +46,16 @@ sub scrape_documentation_for {
         return;
     }
 
+    return $response->{content};
+}
+
+sub scrape_documentation_for {
+    my $self   = shift;
+    my $module = shift;
+
+    my $content = $self->query_live_cpan_for($module);
+    return if !defined($content);
+
     $module =~ s/::/-/g;
     my ($fh, $fn) = tempfile(
         "${module}-XXXX",
@@ -53,7 +63,7 @@ sub scrape_documentation_for {
         UNLINK => $self->unlink_tempfiles,
         TMPDIR => 1,
     );
-    print { $fh } $response->{content};
+    print { $fh } $content;
     close $fh;
 
     return $fn;
@@ -137,6 +147,18 @@ If you set the environment variable C<CPANDOC_FETCH> to a true value,
 then we will print a message to STDERR telling you that C<cpandoc> is
 going to make a request against the live CPAN index.
 
+=head1 TRANSLATIONS
+
+=over 4
+
+=item Japanese
+
+    Japanese documentation can be found at
+    L<http://perldoc.jp/docs/modules/Pod-Cpandoc-0.09/Cpandoc.pod>,
+    contributed by @bayashi.
+
+=back
+
 =head1 SNEAKY INSTALL
 
     cpanm Pod::Cpandoc
@@ -156,6 +178,8 @@ it fails to find your queried file in C<@INC>.
 The sneaky install was inspired by L<https://github.com/defunkt/hub>.
 
 L<http://tech.bayashi.jp/archives/entry/perl-module/2011/003305.html>
+
+L<http://sartak.org/talks/yapc-na-2011/cpandoc/>
 
 =head1 AUTHOR
 
