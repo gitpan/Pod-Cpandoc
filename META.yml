@@ -26,4 +26,4 @@ resources:
     type: git
     url: git://github.com/sartak/pod-cpandoc.git
     web: http://github.com/sartak/pod-cpandoc/tree
-version: 0.10
+version: 0.11

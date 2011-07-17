@@ -6,7 +6,7 @@ use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub live_cpan_url {
     my $self   = shift;
@@ -20,11 +20,9 @@ sub unlink_tempfiles {
     return $self->opt_l ? 0 : 1;
 }
 
-sub query_live_cpan_for {
-    my $self   = shift;
-    my $module = shift;
-
-    my $url = $self->live_cpan_url($module);
+sub fetch_url {
+    my $self = shift;
+    my $url  = shift;
 
     $self->aside("Going to query $url\n");
 
@@ -38,24 +36,37 @@ sub query_live_cpan_for {
 
     my $response = $ua->get($url);
 
-    if ($response->{success}) {
-        $self->aside("Successfully received " . length($response->{content}) . " bytes\n");
-    }
-    else {
+    if (!$response->{success}) {
         $self->aside("Got a $response->{status} error from the server\n");
         return;
     }
 
+    $self->aside("Successfully received " . length($response->{content}) . " bytes\n");
     return $response->{content};
+}
+
+sub query_live_cpan_for {
+    my $self   = shift;
+    my $module = shift;
+
+    my $url = $self->live_cpan_url($module);
+    return $self->fetch_url($url);
 }
 
 sub scrape_documentation_for {
     my $self   = shift;
     my $module = shift;
 
-    my $content = $self->query_live_cpan_for($module);
+    my $content;
+    if ($module =~ m{^https?://}) {
+        $content = $self->fetch_url($module);
+    }
+    else {
+        $content = $self->query_live_cpan_for($module);
+    }
     return if !defined($content);
 
+    $module =~ s{.*/}{}; # directories and/or URLs with slashes anger File::Temp
     $module =~ s/::/-/g;
     my ($fh, $fn) = tempfile(
         "${module}-XXXX",
@@ -123,6 +134,9 @@ Pod::Cpandoc - perldoc that works for modules you don't have installed
 
     vim `cpandoc -l Web::Scraper`
         -- getting the idea yet?
+
+    cpandoc http://darkpan.org/Eval::WithLexicals::AndGlobals
+        -- URLs work too!
 
 =head1 DESCRIPTION
 
