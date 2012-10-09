@@ -6,13 +6,17 @@ use base 'Pod::Perldoc';
 use HTTP::Tiny;
 use File::Temp 'tempfile';
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 sub live_cpan_url {
     my $self   = shift;
     my $module = shift;
 
-    return "http://api.metacpan.org/source/$module";
+    if ($self->opt_m) {
+        return "http://api.metacpan.org/source/$module";
+    } else {
+        return "http://api.metacpan.org/pod/$module?content-type=text/x-pod";
+    }
 }
 
 sub unlink_tempfiles {
@@ -192,6 +196,8 @@ it fails to find your queried file in C<@INC>.
 The sneaky install was inspired by L<https://github.com/defunkt/hub>.
 
 L<http://tech.bayashi.jp/archives/entry/perl-module/2011/003305.html>
+
+L<http://perladvent.org/2011/2011-12-15.html>
 
 L<http://sartak.org/talks/yapc-na-2011/cpandoc/>
 
