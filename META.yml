@@ -1,7 +1,7 @@
 ---
 abstract: "perldoc that works for modules you don't have installed"
 author:
-  - 'Shawn M Moore C<sartak@gmail.com>'
+  - 'Shawn M Moore C<code@sartak.org>'
 build_requires:
   ExtUtils::MakeMaker: 6.59
 configure_requires:
@@ -19,6 +19,7 @@ no_index:
     - inc
 requires:
   HTTP::Tiny: 0
+  JSON: 0
   perl: 5.8.1
 resources:
   homepage: https://github.com/sartak/pod-cpandoc/tree
@@ -27,4 +28,4 @@ resources:
     type: git
     url: git://github.com/sartak/pod-cpandoc.git
     web: https://github.com/sartak/pod-cpandoc/tree
-version: 0.12
+version: 0.13
