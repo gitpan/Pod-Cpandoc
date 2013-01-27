@@ -19,7 +19,7 @@ no_index:
     - inc
 requires:
   HTTP::Tiny: 0
-  JSON: 0
+  JSON::PP: 0
   perl: 5.8.1
 resources:
   homepage: https://github.com/sartak/pod-cpandoc/tree
@@ -28,4 +28,4 @@ resources:
     type: git
     url: git://github.com/sartak/pod-cpandoc.git
     web: https://github.com/sartak/pod-cpandoc/tree
-version: 0.13
+version: 0.14
