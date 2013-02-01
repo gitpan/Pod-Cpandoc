@@ -24,8 +24,5 @@ requires:
 resources:
   homepage: https://github.com/sartak/pod-cpandoc/tree
   license: http://dev.perl.org/licenses/
-  repository:
-    type: git
-    url: git://github.com/sartak/pod-cpandoc.git
-    web: https://github.com/sartak/pod-cpandoc/tree
-version: 0.14
+  repository: git://github.com/sartak/pod-cpandoc.git
+version: 0.15
